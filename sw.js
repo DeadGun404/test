@@ -62,17 +62,3 @@ self.addEventListener('activate', (event) => {
 });
 
 
-self.addEventListener('push', event => {
-  const data = event.data ? event.data.json() : {};
-  const title = data.title || 'Новое уведомление';
-  const options = {
-      body: data.body || 'У вас новое событие!',
-      icon: 'images/icon.png',
-      badge: 'images/badge.png',
-  };
-
-  event.waitUntil(
-      self.registration.showNotification(title, options)
-  );
-});
-

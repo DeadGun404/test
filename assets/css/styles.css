@@ -1,0 +1,178 @@
+body {
+    font-family: 'Georgia', serif; /* Изменен шрифт на более мягкий и похожий на дневник */
+    padding: 20px;
+    background-color: #f1f1f1; /* Легкий теплый фон */
+    color: #4a4a4a;
+}
+
+h1, h2 {
+    font-family: 'Brush Script MT', cursive; /* Рукописный шрифт для заголовков */
+    color: #6A994E; /* Мягкий зеленый цвет */
+    text-align: center;
+}
+
+form {
+    max-width: 400px; /* Ширина формы немного увеличена для удобства */
+    margin: 20px auto;
+    background-color: #fff; /* Белый фон для формы */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+input {
+    width: calc(100% - 16px); /* Подгонка ширины */
+    padding: 8px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+button {
+    padding: 8px 20px;
+    background-color: #6A994E;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: auto;
+    margin: 5px;
+}
+
+button:hover {
+    background-color: #3E7B2B;
+    transform: scale(1.05);
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+/* Навигация и хедер */
+header {
+    background-color: #A0C4A7;
+    color: #fff;
+    padding: 15px 20px;
+    text-align: center;
+    border-radius: 10px;
+}
+
+header h1 {
+    margin: 0;
+    font-family: 'Brush Script MT', cursive;
+}
+
+header nav a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+}
+
+/* Блок с питомцами */
+.pet-list {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pet-list ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.pet-list ul li {
+    padding: 12px;
+    margin: 10px 0;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Стили формы добавления питомца */
+#addPetForm {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    display: none;
+}
+
+#addPetFormContent label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+#addPetFormContent input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Блоки событий */
+.events {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.events table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.events th, .events td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.add-event-form {
+    margin-top: 20px;
+}
+
+.add-event-form input,
+.add-event-form button {
+    margin: 5px 0;
+}
+
+#logoutButton {
+    display: block;  /* Делает кнопку блочной, чтобы её можно было центрировать */
+    width: 200px;    /* Ширина кнопки */
+    height: 50px;    /* Высота кнопки */
+    margin: 0 auto;  /* Центрирует кнопку по горизонтали */
+    text-align: center;  /* Текст по центру */
+    font-size: 18px;    /* Размер шрифта */
+    font-weight: normal;  /* Стандартная толщина шрифта */
+    color: red;         /* Цвет текста (красный) */
+    border: 2px solid red;  /* Красная обводка */
+    background-color: transparent;  /* Прозрачный фон */
+    border-radius: 5px;  /* Скругленные углы */
+    transition: all 0.3s ease;  /* Плавный переход при изменении */
+}
+
+/* Эффект при наведении */
+#logoutButton:hover {
+    color: white;  /* Белый цвет текста */
+    background-color: red;  /* Красный фон */
+    font-weight: bold;  /* Жирный шрифт */
+}
+
+
+
+
+

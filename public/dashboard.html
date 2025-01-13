@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет</title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <script src="/assets/js/script.js"></script>
+    <style>
+        .pet-list {
+            max-height: 400px;  /* Максимальная высота блока */
+            overflow-y: auto;   /* Добавление прокрутки, если контента слишком много */
+        }
+        
+        .pet-list {
+            min-height: 200px;  /* Минимальная высота блока */
+            padding: 10px;       /* Отступы внутри блока */
+        }
+        
+        .pet-list {
+            transition: all 0.3s ease-in-out;  /* Плавное изменение всех свойств */
+        }
+        
+        .pet-list li {
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .pet-list {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+      
+        
+        #addPetForm {
+            display: none; /* Начально скрыто */
+            margin-top: 20px;
+        }
+
+        #medical-records-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        #medical-records-table th, #medical-records-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        #medical-records-table th {
+            background-color: #f2f2f2;
+        }
+        
+        input {
+            width: 100%;
+        }
+        
+        button {
+            padding: 5px 10px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+
+
+    <h1>Личный кабинет</h1>
+     
+   
+
+    <!-- Блок с питомцами -->
+    <div class="pet-list" id="petList">
+        <h2>Ваши питомцы</h2>
+        <!-- Здесь будет список питомцев -->
+    </div>
+
+    <!-- Кнопка для добавления питомца -->
+    <button id="toggleAddPetForm">Добавить питомца</button>
+
+    <!-- Форма добавления питомца -->
+    <div id="addPetForm">
+        <h2>Добавить питомца</h2>
+        <form id="addPetFormContent">
+            <label for="petName">Имя питомца:</label>
+            <input type="text" id="petName" name="petName" required><br><br>
+
+            <label for="petAge">Возраст:</label>
+            <input type="number" id="petAge" name="petAge" required><br><br>
+
+            <label for="petType">Тип питомца (собака, кошка и т.д.):</label>
+            <input type="text" id="petType" name="petType" required><br><br>
+
+            <button type="submit">Добавить</button>
+        </form>
+    </div>
+
+
+<!-- Таблица для отображения событий -->
+<div id="eventsSection">
+    <h2>Список событий</h2>
+    <table border="1" id="eventsTable">
+        <thead>
+            <tr>
+                <th>Имя питомца</th>
+                <th>Название события</th>
+                <th>Время начала</th>
+                <th>Выполнено</th>
+            </tr>
+        </thead>
+        <tbody id="eventsTableBody">
+            <!-- События будут добавляться сюда -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Кнопка для отображения формы добавления события -->
+<button id="toggleAddEventForm">Добавить событие</button>
+
+<!-- Форма добавления события -->
+<div id="addEventForm" style="display: none;">
+    <h2>Добавить событие</h2>
+    <form id="addEventFormContent">
+        <!-- Выпадающее меню для выбора питомца -->
+        <label for="petSelect">Имя питомца:</label>
+        <select id="petSelect" required>
+            <!-- Динамически заполненные питомцы -->
+        </select><br><br>
+
+        <!-- Выпадающее меню для выбора события -->
+        <label for="eventSelect">Название события:</label>
+        <select id="eventSelect" required>
+            <option value="Прогулка">Прогулка</option>
+            <option value="Поход к ветеринару">Поход к ветеринару</option>
+            <option value="Покормить">Покормить</option>
+        </select><br><br>
+
+        <!-- Поле для ввода времени -->
+        <label for="eventTime">Время начала:</label>
+        <input type="time" id="eventTime" name="eventTime" required><br><br>
+
+        <!-- Кнопка добавления события -->
+        <button type="submit">Добавить</button>
+    </form>
+</div>
+
+    <h2>Медицинская книжка питомцев</h2>
+
+    <table id="medical-records-table">
+        <thead>
+            <tr>
+                <th>Имя питомца</th>
+                <th>Диагноз</th>
+                <th>Вакцинации</th>
+                <th>Рекомендации</th>
+                <th>Дата последнего визита</th>
+                <th>Дата следующего визита</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Здесь будет динамически добавляться информация о питомцах -->
+        </tbody>
+
+    </table>
+
+
+    <button id="install-button" style="display: none;">Добавить на главный экран</button>
+
+
+    <!-- Кнопка для выхода из личного кабинета -->
+    <button id="logoutButton">Выйти</button>
+    <ul id="petList"></ul>
+    
+    <script>
+// Получение данных питомцев
+fetch('/getPets')
+    .then(response => response.json())
+    .then(data => {
+        if (data.pets && data.pets.length > 0) {
+            const tableBody = document.querySelector('#medical-records-table tbody');
+            data.pets.forEach(pet => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${pet.petName}</td>
+                    <td><input type="text" id="diagnosis-${pet.id}" value="" disabled /></td>
+                    <td><input type="text" id="vaccinations-${pet.id}" value="" disabled /></td>
+                    <td><input type="text" id="recommendations-${pet.id}" value="" disabled /></td>
+                    <td><input type="text" id="lastVisit-${pet.id}" value="" disabled /></td>
+                    <td><input type="text" id="nextVisit-${pet.id}" value="" disabled /></td>
+                    <td>
+                        <button class="edit-btn">Редактировать</button>
+                        <button class="save-btn" style="display:none;">Сохранить</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+
+                const editBtn = row.querySelector('.edit-btn');
+                const saveBtn = row.querySelector('.save-btn');
+                const inputs = row.querySelectorAll('input');
+
+                // Запросить и загрузить медицинские данные для питомца
+                fetch(`/pets/${pet.id}/medical-record`)
+                    .then(response => response.json())
+                    .then(medicalData => {
+                        if (medicalData) {
+                            document.getElementById(`diagnosis-${pet.id}`).value = medicalData.diagnosis || '';
+                            document.getElementById(`vaccinations-${pet.id}`).value = medicalData.vaccinations || '';
+                            document.getElementById(`recommendations-${pet.id}`).value = medicalData.recommendations || '';
+                            document.getElementById(`lastVisit-${pet.id}`).value = medicalData.lastVisitDate || '';
+                            document.getElementById(`nextVisit-${pet.id}`).value = medicalData.nextVisitDate || '';
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Ошибка при получении медицинских данных:', err);
+                    });
+
+                editBtn.addEventListener('click', () => {
+                    inputs.forEach(input => input.disabled = false);
+                    editBtn.style.display = 'none';
+                    saveBtn.style.display = 'inline';
+                });
+
+                saveBtn.addEventListener('click', () => {
+                    const diagnosis = document.getElementById(`diagnosis-${pet.id}`).value;
+                    const vaccinations = document.getElementById(`vaccinations-${pet.id}`).value;
+                    const recommendations = document.getElementById(`recommendations-${pet.id}`).value;
+                    const lastVisitDate = document.getElementById(`lastVisit-${pet.id}`).value;
+                    const nextVisitDate = document.getElementById(`nextVisit-${pet.id}`).value;
+
+                    if (!diagnosis || !vaccinations || !recommendations || !lastVisitDate || !nextVisitDate) {
+                        alert('Пожалуйста, заполните все поля.');
+                        return;
+                    }
+
+                    const updatedData = {
+                        diagnosis,
+                        vaccinations,
+                        recommendations,
+                        lastVisitDate,
+                        nextVisitDate
+                    };
+
+                    fetch(`/pets/${pet.id}/medical-record`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(updatedData)
+                    })
+                    .then(response => response.json())
+                    .then(() => {
+                        alert('Данные обновлены!');
+                        inputs.forEach(input => input.disabled = true);
+                        editBtn.style.display = 'inline';
+                        saveBtn.style.display = 'none';
+                    })
+                    .catch(err => {
+                        alert('Ошибка при обновлении данных');
+                        console.error(err);
+                    });
+                });
+            });
+        } else {
+            alert('У вас нет питомцев.');
+        }
+    })
+    .catch(err => {
+        console.error('Ошибка загрузки питомцев:', err);
+    });
+
+
+
+    </script>
+    
+
+    <script>
+        // Функция для загрузки питомцев
+        function loadPets() {
+            fetch('/getPets')
+                .then(response => response.json())
+                .then(data => {
+                    const petList = document.getElementById('petList');
+                    petList.innerHTML = ''; // Очищаем список
+    
+                    if (data.pets && data.pets.length > 0) {
+                        data.pets.forEach(pet => {
+                            const petItem = document.createElement('li');
+                            petItem.innerHTML = `
+                                ${pet.petName} - ${pet.petType} (Возраст: ${pet.petAge})
+                                <button onclick="editPet(${pet.id}, '${pet.petName}', ${pet.petAge}, '${pet.petType}')">Редактировать</button>
+                                <button onclick="deletePet(${pet.id})">Удалить</button>
+                            `;
+                            petList.appendChild(petItem);
+                        });
+                    } else {
+                        petList.innerHTML = '<li>У вас нет питомцев.</li>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при получении питомцев:', error);
+                });
+        }
+    
+        // Функция для редактирования питомца
+        function editPet(petId, currentName, currentAge, currentType) {
+            const newName = prompt('Введите новое имя питомца:', currentName);
+            const newAge = prompt('Введите новый возраст питомца:', currentAge);
+            const newType = prompt('Введите новый тип питомца:', currentType);
+    
+            if (newName && newAge && newType) {
+                fetch('/editPet', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ petId, petName: newName, petAge: parseInt(newAge), petType: newType })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message);
+                            loadPets(); // Перезагрузка списка
+                        } else {
+                            alert('Ошибка при редактировании питомца.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при редактировании питомца:', error);
+                    });
+            }
+        }
+    
+        // Функция для удаления питомца
+        function deletePet(petId) {
+            if (confirm('Вы уверены, что хотите удалить этого питомца?')) {
+                fetch('/deletePet', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ petId })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message);
+                            loadPets(); // Перезагрузка списка
+                        } else {
+                            alert('Ошибка при удалении питомца.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при удалении питомца:', error);
+                    });
+            }
+        }
+    
+        // Загружаем список питомцев при загрузке страницы
+        loadPets();
+    </script>
+    
+    <script>
+        // Открытие и закрытие формы добавления питомца
+        const toggleAddPetForm = document.getElementById("toggleAddPetForm");
+        const addPetForm = document.getElementById("addPetForm");
+
+        toggleAddPetForm.onclick = function() {
+            if (addPetForm.style.display === "none" || addPetForm.style.display === "") {
+                addPetForm.style.display = "block";
+            } else {
+                addPetForm.style.display = "none";
+            }
+        };
+
+        // Получение питомцев с сервера и отображение их
+        window.onload = function() {
+            fetch('/getPets')
+                .then(response => response.json())
+                .then(data => {
+                    const petList = document.getElementById('petList');
+                    if (data.pets.length > 0) {
+                        data.pets.forEach(pet => {
+                            const petItem = document.createElement('div');
+                            petItem.className = 'pet-item';
+                            petItem.innerHTML = `<strong>${pet.petName}</strong> (${pet.petAge} лет) - ${pet.petType}`;
+                            petList.appendChild(petItem);
+                        });
+                    } else {
+                        petList.innerHTML += "<p>У вас нет питомцев.</p>";
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при загрузке питомцев:', error);
+                });
+        };
+
+        // Обработка отправки формы для добавления питомца
+        const addPetFormContent = document.getElementById("addPetFormContent");
+
+        addPetFormContent.onsubmit = function(e) {
+            e.preventDefault(); // Предотвратить отправку формы
+
+            const petName = document.getElementById("petName").value;
+            const petAge = document.getElementById("petAge").value;
+            const petType = document.getElementById("petType").value;
+
+            // Отправка данных на сервер
+            fetch('/addPet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    petName,
+                    petAge,
+                    petType
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Перезагрузить страницу, чтобы отобразить новый питомец
+                    window.location.reload();
+                } else {
+                    alert("Ошибка при добавлении питомца");
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при добавлении питомца:', error);
+                alert("Ошибка при добавлении питомца");
+            });
+        };
+
+         document.getElementById("logoutButton").onclick = function() {
+        fetch('/logout')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка при выходе');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/';  // Перенаправление на страницу логина
+                } else {
+                    alert("Ошибка при выходе");
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при выходе:', error);
+                alert("Ошибка при выходе");
+            });
+    };
+</script>
+
+<script>
+    // Показать или скрыть форму добавления события
+    document.getElementById('toggleAddEventForm').addEventListener('click', () => {
+        const addEventForm = document.getElementById('addEventForm');
+        addEventForm.style.display = addEventForm.style.display === 'none' || addEventForm.style.display === '' ? 'block' : 'none';
+    });
+
+    // Загрузка питомцев в выпадающее меню
+    function loadPets() {
+        fetch('/getPets')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Ошибка загрузки питомцев: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const petSelect = document.getElementById('petSelect');
+                petSelect.innerHTML = '';
+
+                if (data.pets && data.pets.length > 0) {
+                    data.pets.forEach(pet => {
+                        const option = document.createElement('option');
+                        option.value = pet.id;
+                        option.textContent = pet.petName;
+                        petSelect.appendChild(option);
+                    });
+                } else {
+                    petSelect.innerHTML = '<option disabled>Нет питомцев</option>';
+                }
+            })
+            .catch(error => console.error('Ошибка при загрузке питомцев:', error));
+    }
+
+    // Загрузка событий
+    function loadEvents() {
+        fetch('/getEventsWithPets')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Ошибка загрузки событий: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const eventsTableBody = document.getElementById('eventsTableBody');
+                eventsTableBody.innerHTML = '';
+
+                if (data.events && data.events.length > 0) {
+                    data.events.forEach(event => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${event.petName}</td>
+                            <td>${event.eventName}</td>
+                            <td>${event.eventTime}</td>
+                            <td>
+                                <input type="checkbox" ${event.completed ? 'checked' : ''} 
+                                    onchange="toggleEventStatus(${event.id}, this.checked)">
+                            </td>
+                        `;
+                        eventsTableBody.appendChild(row);
+                    });
+                } else {
+                    const row = document.createElement('tr');
+                    row.innerHTML = '<td colspan="4">Событий пока нет.</td>';
+                    eventsTableBody.appendChild(row);
+                }
+            })
+            .catch(error => console.error('Ошибка при загрузке событий:', error));
+    }
+
+    // Добавление нового события
+    document.getElementById('addEventFormContent').addEventListener('submit', event => {
+        event.preventDefault();
+
+        const petId = document.getElementById('petSelect').value;
+        const eventName = document.getElementById('eventSelect').value;
+        const eventTime = document.getElementById('eventTime').value;
+
+        if (!petId || !eventName || !eventTime) {
+            alert('Заполните все поля перед добавлением события.');
+            return;
+        }
+
+        fetch('/addEvent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ petId, eventName, eventTime })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Ошибка сервера: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    loadEvents();
+                    document.getElementById('addEventForm').style.display = 'none';
+                } else {
+                    alert('Ошибка при добавлении события.');
+                }
+            })
+            .catch(error => console.error('Ошибка при добавлении события:', error));
+    });
+
+    // Переключение статуса события
+    function toggleEventStatus(eventId, isChecked) {
+        fetch('/toggleEvent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ eventId, completed: isChecked })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Ошибка сервера: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success) {
+                    alert('Ошибка при изменении статуса события.');
+                }
+            })
+            .catch(error => console.error('Ошибка при изменении статуса события:', error));
+    }
+
+    // Загрузка питомцев и событий при загрузке страницы
+    window.onload = () => {
+        loadPets();
+        loadEvents();
+    };
+
+    // Переключение статуса события
+function toggleEventStatus(eventId, isChecked) {
+    if (isChecked) {
+        // Если событие отмечено как выполненное, удаляем его
+        fetch('/deleteEvent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ eventId })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Ошибка сервера: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Удаляем строку события из таблицы на клиенте
+                    const row = document.getElementById(`event-row-${eventId}`);
+                    row.remove();
+                } else {
+                    alert('Ошибка при удалении события.');
+                }
+            })
+            .catch(error => console.error('Ошибка при удалении события:', error));
+    }
+}
+
+events.forEach(event => {
+    const row = document.createElement('tr');
+    row.id = `event-row-${event.id}`; // Добавляем уникальный id строки
+    row.innerHTML = `
+        <td>${event.petName}</td>
+        <td>${event.eventName}</td>
+        <td>${event.eventTime}</td>
+        <td>
+            <input type="checkbox" ${event.completed ? 'checked' : ''} 
+                onchange="toggleEventStatus(${event.id}, this.checked)">
+        </td>
+    `;
+    eventsTableBody.appendChild(row);
+});
+
+
+
+
+</script>
+
+<script>
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+        navigator.serviceWorker.register('/service-worker.js')
+            .then(registration => {
+                console.log('Service Worker зарегистрирован:', registration);
+    
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        console.log('Разрешение на уведомления получено');
+                        subscribeUserToPush(registration);
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Ошибка при регистрации Service Worker:', error);
+            });
+    }
+    
+    function subscribeUserToPush(registration) {
+        registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlB64ToUint8Array('ВАШ_PUB_KEY') // Замените на ваш публичный ключ VAPID
+        })
+        .then(subscription => {
+            console.log('Пользователь подписан на пуш:', subscription);
+            // Отправьте подписку на сервер для сохранения
+            sendSubscriptionToServer(subscription);
+        })
+        .catch(err => {
+            console.error('Ошибка подписки на пуш-уведомления:', err);
+        });
+    }
+    
+    function urlB64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding)
+            .replace(/\-/g, '+')
+            .replace(/\_/g, '/');
+        const rawData = atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    }
+    
+    function sendSubscriptionToServer(subscription) {
+        fetch('/subscribe', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(subscription)
+        });
+    }
+    
+
+    // Функция для загрузки событий
+function loadEvents() {
+    fetch('/getEventsWithPets')
+        .then(response => response.json())
+        .then(data => {
+            const eventsTableBody = document.getElementById('eventsTableBody');
+            eventsTableBody.innerHTML = '';
+
+            data.events.forEach(event => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${event.petName}</td>
+                    <td>${event.eventName}</td>
+                    <td>${event.eventTime}</td>
+                    <td>
+                        <input type="checkbox" ${event.completed ? 'checked' : ''} 
+                            onchange="toggleEventStatus(${event.id}, this.checked)">
+                    </td>
+                `;
+                eventsTableBody.appendChild(row);
+
+                // Синхронизация пуш-уведомлений по времени начала события
+                schedulePushNotification(event);
+            });
+        })
+        .catch(error => console.error('Ошибка при загрузке событий:', error));
+}
+
+// Функция для планирования пуш-уведомлений
+function schedulePushNotification(event) {
+    const eventTime = new Date(`${new Date().toDateString()} ${event.eventTime}`); // Преобразуем в формат времени
+    const currentTime = new Date();
+    const timeDiff = eventTime - currentTime; // Разница во времени
+
+    // Если время события уже прошло, уведомление не отправляем
+    if (timeDiff > 0) {
+        setTimeout(() => {
+            sendPushNotification(event);
+        }, timeDiff);
+    }
+}
+
+// Отправка пуш-уведомления
+function sendPushNotification(event) {
+    if ('Notification' in window && 'serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistration().then(registration => {
+            if (registration) {
+                registration.showNotification(`Время для события: ${event.eventName}`, {
+                    body: `Не забудьте про событие для ${event.petName}!`,
+                    icon: 'images/icon.png'
+                });
+            }
+        });
+    }
+}
+
+
+    
+</script>
+
+<script>
+    let deferredPrompt;
+    const installButton = document.getElementById('install-button'); // Кнопка для установки
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Предотвращаем отображение стандартного диалога
+      e.preventDefault();
+      deferredPrompt = e;
+      
+      // Показываем кнопку "Добавить на главный экран"
+      installButton.style.display = 'block'; 
+    
+      installButton.addEventListener('click', () => {
+        // Скрыть кнопку после нажатия
+        installButton.style.display = 'none';
+        // Показать стандартный диалог
+        deferredPrompt.prompt();
+    
+        // Ожидаем, что пользователь выберет действие
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('PWA добавлено на главный экран');
+          } else {
+            console.log('Пользователь отклонил добавление на главный экран');
+          }
+          deferredPrompt = null;
+        });
+      });
+    });
+    
+
+</script>
+
+<script src="/assets/js/easy-pwa.js"></script>
+    <script>
+      const easyPwa = new EasyPWA({
+        manifest: '/manifest.webmanifest',
+        serviceWorker: '/sw.js',
+        icons: [
+          '/assets/images/icon-192x192.png',
+          '/assets/images/icon-512x512.png'
+        ],
+        themeColor: '#ff6347',
+        backgroundColor: '#ffffff'
+      });
+
+      easyPwa.init(); // Инициализация PWA
+
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {
+              console.log('Service Worker зарегистрирован с успешным результатом:', registration);
+            })
+            .catch((error) => {
+              console.error('Ошибка регистрации сервис-воркера:', error);
+            });
+        });
+      }
+      
+    </script>
+
+</body>
+</html>

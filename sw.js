@@ -61,19 +61,6 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-self.addEventListener('install', event => {
-  event.waitUntil(
-      caches.open('easyPWA-cache').then(cache => {
-          return cache.addAll([
-              '/',
-              '/index.html',
-              '/styles.css',
-              '/script.js',
-              '/images/icon.png'
-          ]);
-      })
-  );
-});
 
 self.addEventListener('push', event => {
   const data = event.data ? event.data.json() : {};
